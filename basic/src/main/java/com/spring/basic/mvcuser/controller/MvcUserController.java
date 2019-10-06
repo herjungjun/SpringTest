@@ -33,7 +33,6 @@ public class MvcUserController {
 	@Autowired
 	private KakaoService kakaoService;
 	
-	
 	//회원등록 요청처리 테스트 메서드
 	@PostMapping("/regTest")
 	public String regTest(@RequestBody MvcUser user) {
@@ -128,7 +127,7 @@ public class MvcUserController {
 	//로그아웃 요청처리
 	@GetMapping("/logout")
 	public ModelAndView logout(HttpServletRequest request, 
-			HttpServletResponse response) {
+			HttpServletResponse response) throws Exception {
 		
 		HttpSession session = request.getSession();
 		MvcUser user = (MvcUser)session.getAttribute(SessionNames.LOGIN);
@@ -136,11 +135,9 @@ public class MvcUserController {
 		if(user != null) {
 			
 			String loginMethod = (String)session.getAttribute("loginMethod");
-			if(loginMethod.equals("kakao")) {	// 만약 카카오 로그아웃이라면
-//				kakaoService.kakaoLogout((String)session.getAttribute("access_token"));
-				
+			if(loginMethod.equals("kakao")) { //만약 카카오 로그아웃이라면
+				kakaoService.kakaoLogout((String)session.getAttribute("access_token"));
 			}
-			
 			
 			session.removeAttribute(SessionNames.LOGIN);
 			session.invalidate(); //세션 객체 통채로 무효화
