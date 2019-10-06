@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- Database 및 MVC패턴 관련 설정 등록 파일 -->
+	<!-- Connection Pool 설정데이터 객체 등록 -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/spring8?serverTimezone=Asia/Seoul" />
+		<property name="username" value="root" />
+		<property name="password" value="mysql" />
+	</bean>
+	
+	<!-- Connection Pool 핵심 객체 등록 -->
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
+		<constructor-arg ref="hikariConfig" />
+	</bean>
+	
+	<!-- MyBatis 핵심객체 sessionFactoryBean 빈 등록 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value="classpath:/mappers/**/*Mapper.xml" />
+	</bean>
+	
+	<!-- 트랜잭션 매니저 빈 등록 -->
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- 스프링 컨테이너에 마이바티스 매퍼를 빈으로 등록 -->
+	<mybatis-spring:scan base-package="com.spring.basic.freeboard.repository"/>
+	<mybatis-spring:scan base-package="com.spring.basic.freeboardreply.repository"/>
+	<mybatis-spring:scan base-package="com.spring.basic.mvcuser.repository"/>
+		
+</beans>
+
+
+
+
+
+
+
+

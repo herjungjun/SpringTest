@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 추상화된 인터페이스의 구현체 역할을 하는 설정 파일. -->
+<mapper namespace="com.spring.basic.freeboard.repository.IFreeBoardMapper">
+
+	<!-- SQL작성을 통한 인터페이스의 추상메서드들 구현 -->
+	<!-- 1-a. create기능 구현 -->
+	<insert id="create">
+		INSERT INTO free_board 
+			(title, content, writer) 
+		VALUES (#{title}, #{content}, #{writer})
+	</insert>
+	
+	<!-- 1-b. addFile기능 구현 -->
+	<insert id="addFile">
+		INSERT INTO file_upload 
+			(file_name, board_id) 
+		VALUES (#{fileName}, LAST_INSERT_ID())
+	</insert>
+	
+	<!-- 2. update기능 구현 -->
+	<update id="update">
+		UPDATE free_board 
+		SET 
+			title = #{title},
+			content = #{content},
+			update_date = NOW()
+		WHERE board_id = #{boardId}
+	</update>
+	
+	<!-- 댓글 개수 상승 하락 기능 구현 -->
+	<update id="updateReplyCnt">
+		UPDATE free_board 
+		SET reply_cnt = reply_cnt + #{count}
+		WHERE board_id = #{boardId}
+	</update>
+	
+	<!-- 조회수 상승 기능 구현 -->
+	<update id="updateViewCnt">
+		UPDATE free_board 
+		SET view_cnt = view_cnt + 1
+		WHERE board_id = #{boardId}
+	</update>
+	
+	<!-- 3. delete 기능 구현 -->
+	<delete id="delete">
+		DELETE 
+		FROM free_board 
+		WHERE board_id = #{boardId} 
+	</delete>
+	
+	<!-- 3.1 deleteFileNames 기능 구현 -->
+	<delete id="deleteFileNames">
+		DELETE 
+		FROM file_upload  
+		WHERE board_id = #{boardId} 
+	</delete>
+	
+	<!-- 4-1. 단일 행 조회 기능 -->
+	<select id="selectOne" resultMap="FreeBoardMap">
+		SELECT * 
+		FROM free_board 
+		WHERE board_id = #{boardId}
+	</select>
+	
+	<!-- 4-1-1. 첨부파일 목록 불러오기 기능 -->
+	<select id="getFileNames" resultType="String">
+		SELECT file_name 
+		FROM file_upload
+		WHERE board_id=#{boardId};		
+	</select>
+	
+	<!-- 4-2. 다중 행 조회 기능 -->
+	<select id="selectAll" resultMap="FreeBoardMap">
+		SELECT *
+		FROM free_board		
+		<include refid="search" />
+		ORDER BY board_id DESC 
+		LIMIT #{pageStart}, #{countPerPage}
+	</select>
+	
+	<!-- 총 게시물 수 구하는 기능(만약 검색했다면 검색된 총 게시물 수를 구한다.) -->
+	<select id="countArticles" resultType="int">
+		SELECT COUNT(board_id) 
+		FROM free_board
+		<include refid="search" />
+	</select>
+	
+	<!-- 중복되는 동적 SQL구문 처리 -->
+	<sql id="search">
+		<if test="condition != null">
+			<if test="condition == 'title'">
+			WHERE title LIKE CONCAT('%', #{keyword}, '%') 
+			</if> 
+			<if test="condition == 'writer'">
+			WHERE writer LIKE CONCAT('%', #{keyword}, '%') 
+			</if> 
+			<if test="condition == 'content'">
+			WHERE content LIKE CONCAT('%', #{keyword}, '%') 
+			</if> 
+			<if test="condition == 'titleContent'">
+			WHERE title LIKE CONCAT('%', #{keyword}, '%') 
+			 OR content LIKE CONCAT('%', #{keyword}, '%') 
+			</if> 
+		</if>
+	</sql>
+	
+	<!-- java와 sql의 이름표기의 차이로 나타나는 문제를 해결하는 ResultMap -->
+	<resultMap id="FreeBoardMap" type="com.spring.basic.freeboard.domain.FreeBoard">
+		<id property="boardId" column="board_id" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="writer" column="writer" />
+		<result property="regDate" column="reg_date" />
+		<result property="updateDate" column="update_date" />
+		<result property="viewCnt" column="view_cnt" />
+		<result property="replyCnt" column="reply_cnt" />
+	</resultMap>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.basic.freeboardreply.repository.IFreeBoardReplyMapper">
+
+	<insert id="create">
+		INSERT INTO free_board_reply 
+			(reply_text, reply_writer, board_id) 
+		VALUES (#{replyText}, #{replyWriter}, #{boardId}) 
+	</insert>
+	
+	<update id="update">
+		UPDATE free_board_reply 
+		SET reply_text=#{replyText}, 
+			update_date= NOW() 
+		WHERE reply_id=#{replyId}
+	</update>
+	
+	<delete id="delete">
+		DELETE FROM free_board_reply 
+		WHERE reply_id=#{replyId}
+	</delete>
+	
+	<delete id="deleteAll">
+		DELETE FROM free_board_reply 
+		WHERE board_id=#{boardId}
+	</delete>
+	
+	<select id="selectAll" resultMap="ReplyMap">
+		SELECT * FROM free_board_reply 
+		WHERE board_id=#{boardId} 
+		ORDER BY reply_id DESC 
+		LIMIT #{page.pageStart}, #{page.countPerPage} 
+	</select>
+	
+	<select id="countReplies" resultType="int">
+		SELECT COUNT(*) 
+		FROM free_board_reply 
+		WHERE board_id=#{boardId}
+	</select>	
+	
+	<resultMap id="ReplyMap" type="com.spring.basic.freeboardreply.domain.FreeBoardReply">
+		<id property="replyId" column="reply_id" />
+		<result property="replyText" column="reply_text" />
+		<result property="replyWriter" column="reply_writer" />
+		<result property="regDate" column="reg_date" />
+		<result property="updateDate" column="update_date" />
+		<result property="boardId" column="board_id" />
+	</resultMap>
+
+</mapper>
+
+
+
+

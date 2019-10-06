@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.basic.mvcuser.repository.IMvcUserMapper">
+
+<!-- 1. 회원 등록기능 -->
+<insert id="register">
+	INSERT INTO mvc_user
+	 (account, password, name, email, auth, kakao_account) 
+	VALUES (#{account}, #{password}, #{name}, #{email}, #{auth}, #{kakaoAccount}) 
+</insert>
+
+<!-- 1-1. 아이디 or 이메일 중복체크 -->
+<select id="isDuplicate" parameterType="hashmap" resultType="int">
+	SELECT COUNT(*) 
+	FROM mvc_user
+	<if test="kind == 'account'"> 
+		WHERE account=#{info}
+	</if> 
+	<if test="kind == 'email'"> 
+		WHERE email=#{info}
+	</if> 
+</select>
+
+<!-- 2. 단일 회원 정보조회 기능 -->
+<select id="getUserInfo" resultMap="UserMap">
+	SELECT * 
+	FROM mvc_user 
+	WHERE account = #{account}
+</select>
+
+<!-- 3. 자동로그인 체크시 쿠키값(세션아이디)와 로그인유지시간을 갱신 -->
+<update id="keepLogin">
+	UPDATE mvc_user 
+	SET session_id=#{sessionId},
+	   limit_time=#{limitTime} 
+	WHERE account=#{account}
+</update>
+
+<!-- 4. 자동로그인을 했던 회원이 재방문 시 로컬에 저장된 쿠키값을 통해
+	해당 회원의 정보를 조회하는 SQL
+ -->
+<select id="getUserWithSessionId" resultMap="UserMap">
+	SELECT * FROM mvc_user 
+	WHERE session_id = #{sessionId}
+	  AND limit_time > NOW()
+</select>
+
+<!-- 5. 최종로그인 시간 처리 -->
+<update id="updateLastLoginTime">
+	UPDATE mvc_user 
+	SET last_login_at = NOW() 
+	WHERE account = #{account}
+</update>
+
+<!-- 카카오 로그인 회원정보 조회 -->
+<select id="getUserInfoWithKakao" resultMap="UserMap">
+	SELECT * 
+	FROM mvc_user 
+	WHERE kakao_account = #{kakaoAccount}
+</select>
+
+<resultMap id="UserMap" type="com.spring.basic.mvcuser.domain.MvcUser">
+	<id property="account" column="account" />
+	<result property="password" column="password" />
+	<result property="name" column="name" />
+	<result property="email" column="email" />
+	<result property="auth" column="auth" />
+	<result property="regDate" column="reg_date" />
+	<result property="lastLoginAt" column="last_login_at" />
+</resultMap>
+
+</mapper>
