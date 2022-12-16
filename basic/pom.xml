@@ -12,7 +12,7 @@
 		<!-- 자바 버전을 자신의 환경에 맞게 설정 -->
 		<java-version>1.8</java-version>
 		<!-- 스프링 프레임워크 버전을 변경 -->
-		<org.springframework-version>5.1.5.RELEASE</org.springframework-version>
+		<org.springframework-version>5.2.20.RELEASE</org.springframework-version>
 		<org.aspectj-version>1.6.10</org.aspectj-version>
 		<org.slf4j-version>1.6.6</org.slf4j-version>
 	</properties>
